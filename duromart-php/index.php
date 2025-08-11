@@ -37,7 +37,7 @@
         </div>
 
         <!-- Main content area -->
-        <!-- The form now submits to the login_process.php file -->
+        <!-- The form submits to the login_process.php file -->
         <form class="p-4 grid grid-cols-2 gap-4" action="login_process.php" method="post">
 
             <!-- Left side: Form Inputs -->
@@ -59,12 +59,10 @@
                 <div>
                     <label for="department" class="block text-sm font-medium text-gray-700">Department/Branch</label>
                     <div class="relative">
+                        <!-- The select element is now empty, it will be populated by JavaScript -->
                         <select id="department" name="department"
                                 class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
-                            <option value="">Select a department</option>
-                            <!-- Add your department options here -->
-                            <option value="Global Make Traders LTD">Global Make Traders LTD</option>
-                            <option value="Department 2">Department 2</option>
+                            <option value="">Loading...</option>
                         </select>
                     </div>
                 </div>
@@ -101,5 +99,36 @@
             <span class="text-right">Connection Settings</span>
         </div>
     </div>
+    
+    <!-- JavaScript to fetch and populate the department dropdown -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const departmentSelect = document.getElementById('department');
+
+            // Function to fetch branches from the server
+            async function fetchBranches() {
+                try {
+                    const response = await fetch('get_branches.php');
+                    const branches = await response.json();
+
+                    // Clear the initial "Loading..." option
+                    departmentSelect.innerHTML = '<option value="">Select a department</option>';
+
+                    // Populate the dropdown with fetched branches
+                    branches.forEach(branch => {
+                        const option = document.createElement('option');
+                        option.value = branch.name;
+                        option.textContent = branch.name;
+                        departmentSelect.appendChild(option);
+                    });
+                } catch (error) {
+                    console.error('Error fetching branches:', error);
+                    departmentSelect.innerHTML = '<option value="">Error loading branches</option>';
+                }
+            }
+
+            fetchBranches();
+        });
+    </script>
 </body>
 </html>
