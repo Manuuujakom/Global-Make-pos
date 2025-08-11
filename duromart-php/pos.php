@@ -1,3 +1,13 @@
+<?php
+/**
+ * Global Market Traders LTD POS Home Screen
+ *
+ * This file contains the main structure and a placeholder for a Point of Sale (POS) system.
+ * It uses a combination of PHP, HTML, and JavaScript with Tailwind CSS for styling.
+ * The PHP syntax has been updated to switch between PHP and HTML blocks for better readability.
+ * The script must be served by a PHP-enabled web server to function correctly.
+ */
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,6 +19,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
+        // Tailwind CSS configuration
         tailwind.config = {
             theme: {
                 extend: {
@@ -91,6 +102,32 @@
             padding: 2rem;
             box-sizing: border-box;
             overflow-y: auto;
+        }
+        /* Styles for the POS menu bar */
+        .pos-menu-bar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 1rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .pos-menu-button {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4B5563;
+            cursor: pointer;
+            border-radius: 0.375rem;
+            transition: background-color 0.2s;
+        }
+        .pos-menu-button:hover {
+            background-color: #F3F4F6;
+        }
+        .pos-menu-button.active {
+            background-color: #E5E7EB;
+            color: #1D4ED8;
+            font-weight: 600;
         }
     </style>
 </head>
@@ -246,14 +283,44 @@
 
             <!-- POS Screen - initially hidden -->
             <div id="pos-screen" class="pos-container lg:col-span-2 xl:col-span-3">
-                <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">Point of Sale</h2>
-                    <button id="close-pos-btn" class="btn btn-secondary">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                <div class="pos-menu-bar">
+                    <h2 class="text-xl font-bold text-gray-900 mr-4">DuraPOS</h2>
+                    <button class="pos-menu-button active" data-content="file">File</button>
+                    <button class="pos-menu-button" data-content="edit">Edit</button>
+                    <button class="pos-menu-button" data-content="view">View</button>
+                    <button class="pos-menu-button" data-content="admin">Admin</button>
+                    <button class="pos-menu-button" data-content="reports">Reports</button>
+                    <button class="pos-menu-button" data-content="masters">Masters</button>
+                    <button class="pos-menu-button" data-content="stores">Stores</button>
+                    <button class="pos-menu-button" data-content="accounts">Accounts</button>
+                    <button class="pos-menu-button" data-content="hrm">HRM</button>
+                    <button class="pos-menu-button" data-content="payroll">Payroll</button>
+                    <button class="pos-menu-button" data-content="tools">Tools</button>
+                    <button class="pos-menu-button" data-content="windows">Windows</button>
+                    <button class="pos-menu-button" data-content="help">Help</button>
                 </div>
+                <div id="pos-content-area" class="flex-1 p-4 bg-white mt-4 rounded-lg shadow-lg">
+                    <div id="pos-content-file" class="content-section">
+                        <h3 class="text-xl font-semibold mb-4">File Options</h3>
+                        <p>Content for the File section will be displayed here.</p>
+                        <!-- Other file-related UI components would go here -->
+                    </div>
+                    <div id="pos-content-edit" class="content-section hidden">
+                        <h3 class="text-xl font-semibold mb-4">Edit Options</h3>
+                        <p>Content for the Edit section will be displayed here.</p>
+                    </div>
+                    <div id="pos-content-view" class="content-section hidden">
+                        <h3 class="text-xl font-semibold mb-4">View Options</h3>
+                        <p>Content for the View section will be displayed here.</p>
+                    </div>
+                    <!-- Add more sections for other menu options here, all initially hidden -->
+                </div>
+                
+                <button id="close-pos-btn" class="absolute top-4 right-4 btn btn-secondary">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
             </div>
         </main>
     </div>
@@ -269,6 +336,38 @@
             const btnDashboard = document.getElementById('btn-dashboard');
             const closePosBtn = document.getElementById('close-pos-btn');
 
+            // --- POS Menu Logic ---
+            const posMenuButtons = document.querySelectorAll('.pos-menu-button');
+            const contentSections = document.querySelectorAll('.content-section');
+            const posContentArea = document.getElementById('pos-content-area');
+
+            function showContentSection(contentId) {
+                // Hide all content sections
+                contentSections.forEach(section => {
+                    section.classList.add('hidden');
+                });
+                // Show the requested content section
+                const targetSection = document.getElementById(`pos-content-${contentId}`);
+                if (targetSection) {
+                    targetSection.classList.remove('hidden');
+                } else {
+                    // Placeholder for content not yet implemented
+                    posContentArea.innerHTML = `<div class="p-4"><p class="text-gray-400 text-lg">Content for "${contentId}" is not yet available.</p></div>`;
+                }
+            }
+
+            posMenuButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    // Remove 'active' class from all buttons
+                    posMenuButtons.forEach(btn => btn.classList.remove('active'));
+                    // Add 'active' class to the clicked button
+                    button.classList.add('active');
+                    // Get the content ID from the data attribute and show the corresponding section
+                    const contentId = button.getAttribute('data-content');
+                    showContentSection(contentId);
+                });
+            });
+
             // --- Branch Dropdown Logic ---
             dropdownBtn.addEventListener('click', () => {
                 dropdownMenu.classList.toggle('hidden');
@@ -279,48 +378,17 @@
                 }
             });
 
-            // --- POS Screen Logic ---
+            // --- Screen Transition Logic ---
             // Function to show the POS screen
-            async function showPosScreen() {
-                // Set loading state
-                posScreen.style.display = 'block';
+            function showPosScreen() {
                 dashboardContent.style.display = 'none';
-                posScreen.innerHTML = `
-                    <div class="flex justify-center items-center h-full">
-                        <div class="text-center text-gray-500 text-lg">
-                            <svg class="animate-spin h-8 w-8 text-gray-400 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                            </svg>
-                            <p class="mt-2">Loading POS Interface...</p>
-                        </div>
-                    </div>
-                `;
-
-                try {
-                    // Fetch the content from pos.php
-                    const response = await fetch('pos.php');
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    const posContent = await response.text();
-                    
-                    // Replace the loading message with the actual content
-                    posScreen.innerHTML = posContent;
-                    
-                    // Update button styles after successful load
-                    btnPosSales.classList.remove('btn-secondary');
-                    btnPosSales.classList.add('btn-primary');
-                    btnDashboard.classList.remove('btn-primary');
-                    btnDashboard.classList.add('btn-secondary');
-                } catch (error) {
-                    console.error('Failed to load POS content:', error);
-                    posScreen.innerHTML = `
-                        <div class="flex justify-center items-center h-full">
-                            <p class="text-red-500 text-lg">Error loading POS interface. Please try again.</p>
-                        </div>
-                    `;
-                }
+                posScreen.style.display = 'flex';
+                posScreen.classList.add('flex-col');
+                // Update button styles
+                btnPosSales.classList.remove('btn-secondary');
+                btnPosSales.classList.add('btn-primary');
+                btnDashboard.classList.remove('btn-primary');
+                btnDashboard.classList.add('btn-secondary');
             }
 
             // Function to show the Dashboard screen
@@ -337,9 +405,7 @@
             // Event listeners for the buttons
             btnPosSales.addEventListener('click', showPosScreen);
             btnDashboard.addEventListener('click', showDashboard);
-            // Note: Close button needs to be re-attached if content is replaced.
-            // A more robust solution is to use event delegation. For now, we will
-            // just attach it to the button's click handler.
+            closePosBtn.addEventListener('click', showDashboard);
         });
     </script>
 </body>

@@ -1,15 +1,11 @@
 <?php
 /**
- * Updated login_process.php
- * This file now connects to the database and validates user credentials.
+ * Temporary login_process.php with hard-coded credentials.
+ * This file is for temporary testing purposes and bypasses database validation.
  */
 
 // Start a new session or resume the existing one.
 session_start();
-
-// Include the database connection file.
-// The "db.php" file must be in the same directory.
-require_once 'db.php';
 
 // Check if the form was submitted using the POST method.
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -19,48 +15,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $password = $_POST['password'] ?? '';
     $department = $_POST['department'] ?? '';
 
-    // Prepare a SQL query to prevent SQL injection.
-    // The '?' is a placeholder for the actual data.
-    // This query looks for a matching username, password, and branch in the 'users' table.
-    $sql = "SELECT username, branch FROM users WHERE username = ? AND password = ? AND branch = ?";
+    // --- Hard-coded credentials for temporary login ---
+    // Define the temporary username, password, and department.
+    $hardcoded_username = 'admin';
+    $hardcoded_password = 'password123'; // REMEMBER to use a strong password in production.
+    $hardcoded_department = 'Global Make Traders LTD';
 
-    if ($stmt = $conn->prepare($sql)) {
-        // Bind parameters to the statement. 'sss' indicates three string parameters.
-        $stmt->bind_param("sss", $param_username, $param_password, $param_department);
+    // Validate the submitted credentials against the hard-coded ones.
+    if ($username === $hardcoded_username && $password === $hardcoded_password && $department === $hardcoded_department) {
+        
+        // If credentials match, set session variables and redirect to the welcome page.
+        $_SESSION['loggedin'] = true;
+        $_SESSION['username'] = $username;
+        $_SESSION['department'] = $department;
 
-        // Set the parameters.
-        $param_username = $username;
-        $param_password = $password; 
-        $param_department = $department;
-
-        // Execute the prepared statement.
-        if ($stmt->execute()) {
-            // Store the result.
-            $stmt->store_result();
-
-            // Check if a row was returned. A row count of 1 means a valid user was found.
-            if ($stmt->num_rows == 1) {
-                // If credentials are correct, set a session variable to indicate the user is logged in.
-                $_SESSION['loggedin'] = true;
-                $_SESSION['username'] = $username;
-                $_SESSION['department'] = $department;
-
-                // Redirect the user to the welcome page.
-                header('Location: welcome.php');
-                exit;
-            } else {
-                // If no matching user was found, redirect back to the login page with an error.
-                header('Location: index.php?error=invalid_credentials');
-                exit;
-            }
-        } else {
-            // Handle execution error.
-            echo "Oops! Something went wrong. Please try again later.";
-        }
-
-        // Close statement.
-        $stmt->close();
+        header('Location: welcome.php');
+        exit;
+    } else {
+        // If credentials don't match, redirect back to the login page with an error.
+        header('Location: index.php?error=invalid_credentials');
+        exit;
     }
+
 } else {
     // If someone tries to access this page directly without submitting the form,
     // redirect them to the login page.
@@ -68,7 +44,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit;
 }
 
-// Close the database connection.
-$conn->close();
+// Note: There is no need for database connection or closure in this hard-coded version.
 
 ?>
