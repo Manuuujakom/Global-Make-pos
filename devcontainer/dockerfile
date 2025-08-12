@@ -1,0 +1,25 @@
+# Use a base image with PHP and Apache pre-installed
+FROM php:8.2-apache
+
+# Install Node.js and npm to run the live-server
+# This is a good practice as it keeps the image cleaner
+RUN apt-get update && apt-get install -yq \
+    curl \
+    gnupg \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash -
+RUN apt-get update && apt-get install -yq nodejs npm
+
+# Install Composer for PHP dependency management
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+# Install live-server globally for auto-refresh
+RUN npm install -g live-server
+
+# The /var/www/html directory is the default document root for Apache
+# We will mount our local project folder here
+WORKDIR /var/www/html
+
+# Enable Apache's rewrite module for clean URLs
+RUN a2enmod rewrite
