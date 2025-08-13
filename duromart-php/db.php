@@ -9,10 +9,10 @@
 
 // Define database connection constants.
 // You may need to change these values based on your local environment setup.
-define('DB_SERVER', 'localhost');
+define('DB_SERVER', '127.0.0.1');
 define('DB_USERNAME', 'root');   // Default username for local servers like XAMPP, WAMP, MAMP
 define('DB_PASSWORD', '');      // Default password is often empty
-define('DB_NAME', 'global_database');    // The database name you specified
+define('DB_NAME', 'duromart_database');    // The database name you specified
 
 // Attempt to connect to the database.
 $conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);

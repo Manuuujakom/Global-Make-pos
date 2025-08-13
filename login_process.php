@@ -1,53 +1,64 @@
 <?php
-/**
- * Temporary login_process.php with hard-coded credentials for local development.
- * This file is for testing purposes and bypasses database validation.
- *
- * Use username: 123
- * Use password: 123
- */
-
-// Start a new session or resume the existing one.
+// Start a session
 session_start();
 
-// NOTE: For local development, we are bypassing the database connection.
-// require_once 'db.php';
+// Include the database connection file
+require_once 'duromart-php/db.php';
 
-// Check if the form was submitted using the POST method.
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+// Check if the form was submitted
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
-    // Retrieve the data from the form.
-    $username = $_POST['username'] ?? '';
-    $password = $_POST['password'] ?? '';
-    $department = $_POST['department'] ?? '';
+    // Sanitize and get form data
+    $username = $_POST['username'];
+    $password = $_POST['password']; 
+    $department = $_POST['department'];
 
-    // --- Hard-coded credentials for temporary login ---
-    // Define the temporary username and password for local testing.
-    $hardcoded_username = '123';
-    $hardcoded_password = '123';
-    // You can set a hardcoded department as well if needed, or just let it pass.
-    $hardcoded_department = 'Global Make Traders LTD';
+    // Check if the user and password match a record in the database
+    // The query now checks ONLY username and password
+    $sql = "SELECT id, username FROM users WHERE username = ? AND password = ?";
+    
+    // Prepare the statement
+    if ($stmt = $conn->prepare($sql)) {
+        // Bind parameters (only username and password)
+        $stmt->bind_param("ss", $username, $password);
 
-    // Validate the submitted credentials against the hard-coded ones.
-    if ($username === $hardcoded_username && $password === $hardcoded_password) {
-        
-        // If credentials match, set session variables and redirect to the welcome page.
-        $_SESSION['loggedin'] = true;
-        $_SESSION['username'] = $username;
-        $_SESSION['department'] = $department;
+        // Execute the statement
+        $stmt->execute();
 
-        header('Location: welcome.php');
-        exit;
-    } else {
-        // If credentials don't match, redirect back to the login page with an error.
-        header('Location: index.php?error=invalid_credentials');
-        exit;
+        // Store the result
+        $stmt->store_result();
+
+        // Check if a user was found
+        if ($stmt->num_rows == 1) {
+            // User found, login is successful
+            $stmt->bind_result($user_id, $db_username);
+            $stmt->fetch();
+
+            // Set session variables
+            $_SESSION['loggedin'] = true;
+            $_SESSION['id'] = $user_id;
+            $_SESSION['username'] = $db_username;
+            $_SESSION['department'] = $department; // Store the selected department
+
+            // Redirect to welcome page
+            header("Location: welcome.php");
+            exit;
+        } else {
+            // Login failed, redirect back to the login page with an error
+            $_SESSION['login_error'] = "Invalid username or password.";
+            header("Location: index.php");
+            exit;
+        }
+
+        // Close the statement
+        $stmt->close();
     }
-
-} else {
-    // If someone tries to access this page directly without submitting the form,
-    // redirect them to the login page.
-    header('Location: index.php');
-    exit;
 }
+
+// Close the database connection
+$conn->close();
+
+// If the form was not submitted or something went wrong, redirect to the login page
+header("Location: index.php");
+exit;
 ?>
