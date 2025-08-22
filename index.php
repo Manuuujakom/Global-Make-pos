@@ -1,4 +1,7 @@
 <?php
+// Start a session
+session_start();
+
 // Include the database connection file using the correct relative path
 require_once 'duromart-php/db.php';
 
@@ -8,12 +11,18 @@ $result = $conn->query($sql);
 
 $branches = [];
 if ($result->num_rows > 0) {
-    // Fetch each row and add it to the branches array
     while($row = $result->fetch_assoc()) {
-        $branches[] = $row['name']; // Just get the name
+        $branches[] = $row['name'];
     }
 }
 $conn->close();
+
+// Check for and clear any login error messages
+$login_error = '';
+if (isset($_SESSION['login_error'])) {
+    $login_error = $_SESSION['login_error'];
+    unset($_SESSION['login_error']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -37,7 +46,6 @@ $conn->close();
 </head>
 <body class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
     <div class="w-full max-w-sm bg-white border border-gray-300 rounded-lg shadow-xl overflow-hidden">
-
         <div class="flex items-center justify-between bg-blue-600 text-white p-2">
             <div class="flex items-center space-x-2">
                 <div class="w-4 h-4 bg-white rounded-sm"></div>
@@ -49,6 +57,11 @@ $conn->close();
         </div>
 
         <form class="p-4 grid grid-cols-2 gap-4" action="login_process.php" method="post">
+            <?php if ($login_error): ?>
+                <div class="col-span-2 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+                    <span class="block sm:inline"><?php echo htmlspecialchars($login_error); ?></span>
+                </div>
+            <?php endif; ?>
 
             <div class="col-span-2 md:col-span-1 space-y-4">
                 <div>
@@ -71,7 +84,6 @@ $conn->close();
                         <select id="department" name="department"
                                 class="mt-1 block w-full pl-3 pr-10 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm">
                             <?php
-                            // Check if branches were found and populate the dropdown
                             if (!empty($branches)) {
                                 foreach ($branches as $branch_name) {
                                     echo "<option value=\"$branch_name\">" . htmlspecialchars($branch_name) . "</option>";
