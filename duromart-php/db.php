@@ -2,28 +2,35 @@
 /**
  * db.php
  *
- * This file establishes a connection to the MySQL database.
+ * This file establishes a connection to the Supabase PostgreSQL database.
  * It is intended to be included at the beginning of any script
  * that needs to interact with the database.
  */
 
-// Define database connection constants.
-// You may need to change these values based on your local environment setup.
-define('DB_SERVER', '127.0.0.1');
-define('DB_USERNAME', 'root');   // Default username for local servers like XAMPP, WAMP, MAMP
-define('DB_PASSWORD', '');      // Default password is often empty
-define('DB_NAME', 'duromart_database');    // The database name you specified
+// Database connection URL from Supabase
+$DATABASE_URL = "postgresql://postgres:[Tx*#ep?kt89pNbu]@db.sgurgsblrlridrowcypr.supabase.co:5432/postgres";
 
-// Attempt to connect to the database.
-$conn = new mysqli(DB_SERVER, DB_USERNAME, DB_PASSWORD, DB_NAME);
+// Parse DATABASE_URL into components
+$parsed_url = parse_url($DATABASE_URL);
 
-// Check the connection.
-// If the connection fails, terminate the script and display an error message.
-if ($conn->connect_error) {
-    die("ERROR: Could not connect. " . $conn->connect_error);
+$host = $parsed_url["host"];
+$port = $parsed_url["port"];
+$user = $parsed_url["user"];
+$pass = $parsed_url["pass"];
+$dbname = ltrim($parsed_url["path"], "/");
+
+try {
+    // Create a PDO connection
+    $conn = new PDO("pgsql:host=$host;port=$port;dbname=$dbname", $user, $pass);
+
+    // Set error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+    // Set character encoding
+    $conn->exec("SET NAMES 'utf8'");
+
+    // echo "✅ Connected to Supabase successfully!"; // Uncomment for debugging
+} catch (PDOException $e) {
+    die("❌ ERROR: Could not connect. " . $e->getMessage());
 }
-
-// Set character set to UTF-8. This is good practice.
-$conn->set_charset("utf8mb4");
-
 ?>
