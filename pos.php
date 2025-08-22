@@ -172,7 +172,7 @@ $department = $_SESSION['department'] ?? 'Department';
             document.body.appendChild(popup);
 
             // Fetch the content of the form and inject it into the popup
-            fetch('/workspaces/GlobalMakers/assets/pos-form.html')
+            fetch('assets/pos-form.php')
                 .then(response => {
                     if (!response.ok) {
                         throw new Error('Failed to fetch POS form');
